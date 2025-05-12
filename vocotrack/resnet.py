@@ -154,10 +154,19 @@ class ResNet(nn.Module):
         )
 
         self._out_channels = stages[-1].out_channels
+        
+        total = config.stem.stride
+        for stage_cfg in config.stages:
+            total *= stage_cfg.stride
+        self._total_stride = total
 
     @property
     def out_channels(self) -> int:
         return self._out_channels
+    
+    @property
+    def total_stride(self) -> int:
+        return self._total_stride
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         if x.dim() == 3:

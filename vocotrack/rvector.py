@@ -10,13 +10,15 @@ class RVector(nn.Module):
         super().__init__() 
         config = RVectorCfg.model_validate(config)
 
-        self.res_net = res_net = ResNet(config.res_net)
+        self.resnet = resnet = ResNet(config.res_net)
         self.pooling = StatisticsPooling()
 
-        size = 2 * res_net.out_channels
+        size = 2 * resnet.out_channels * 3
+        
         self.emb_gender = nn.Embedding(2, config.emb_gender)
         self.emb_word = nn.Embedding(100, config.emb_word)
         hidden_dim = size + config.emb_gender + config.emb_word
+        
         self.flatten = nn.Flatten()
 
         self.fc = nn.Linear(hidden_dim, 256)
@@ -29,12 +31,20 @@ class RVector(nn.Module):
         gender: torch.Tensor,
         word_id: torch.Tensor,
     ) -> torch.Tensor:
-        x = self.res_net(mfcc)
-        lengths = (lengths // self.total_stride).clamp_min(1)
+        x = self.resnet(mfcc)
+        lengths = (lengths // self.resnet.total_stride).clamp_min(1)
         
+        x = x.transpose(1, 2)
+        x = x.transpose(1, 3)
+    
         x = self.pooling(x, lengths)
+
         x = self.flatten(x)
         meta = torch.cat([self.emb_gender(gender), self.emb_word(word_id)], dim=1)
 
         x = torch.cat([x, meta], dim=1)
-        return self.relu(x)
+        x = self.fc(x)
+        
+        output = self.relu(x)
+        
+        return output

@@ -1,18 +1,30 @@
 [project]
 name = "vocotrack"
 version = "0.1.0"
-description = "Add your description here"
+description = "Support children with speech development difficulties"
+authors = [
+    {name = "blnkoff",email = "axbelenkov@gmail.com"}
+]
+license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "jupyter>=1.1.1",
-    "librosa>=0.11.0",
-    "matplotlib>=3.10.3",
-    "numpy>=2.2.5",
-    "pandas>=2.2.3",
-    "pyarrow>=20.0.0",
-    "pydantic>=2.11.4",
-    "seaborn>=0.13.2",
-    "speechbrain>=1.0.3",
-    "torch>=2.7.0",
+    "torch (>=2.7.0,<3.0.0)",
+    "pydantic (>=2.11.4,<3.0.0)",
+    "speechbrain (>=1.0.3,<2.0.0)"
 ]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.group.dev.dependencies]
+matplotlib = "^3.10.3"
+seaborn = "^0.13.2"
+pandas = "^2.2.3"
+lightning = "^2.5.1.post0"
+librosa = "^0.11.0"
+pyarrow = "^20.0.0"
+jupyter = "^1.1.1"
+
