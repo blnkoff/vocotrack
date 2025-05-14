@@ -28,7 +28,9 @@ def _stem_default(values: dict[str, Any]) -> ConvCfg:
         kernel_size=3,
         stride=1
     )
-
+    
+def _dropout_prob(values: dict[str, Any]) -> float:
+    return values['resnet'].dropout_prob
 
 class StageCfg(BaseModel):
     in_channels: int
@@ -41,9 +43,11 @@ class ResNetCfg(BaseModel):
     block_type: BlockType = BlockType.BASIC
     stem: ConvCfg = Field(default_factory=_stem_default)
     stages: Iterable[StageCfg]
+    dropout_prob: float = 0.2
 
 
 class RVectorCfg(BaseModel):
-    res_net: ResNetCfg
+    resnet: ResNetCfg
     emb_gender: int = 16
     emb_word: int = 64
+    dropout_prob: float = Field(default_factory=_dropout_prob)

@@ -10,7 +10,7 @@ class RVector(nn.Module):
         super().__init__() 
         config = RVectorCfg.model_validate(config)
 
-        self.resnet = resnet = ResNet(config.res_net)
+        self.resnet = resnet = ResNet(config.resnet)
         self.pooling = StatisticsPooling()
 
         size = 2 * resnet.out_channels * 3
@@ -20,6 +20,7 @@ class RVector(nn.Module):
         hidden_dim = size + config.emb_gender + config.emb_word
         
         self.flatten = nn.Flatten()
+        self.dropout_meta = nn.Dropout(config.dropout_prob) 
 
         self.fc = nn.Linear(hidden_dim, 256)
         self.relu = nn.ReLU(inplace=True)

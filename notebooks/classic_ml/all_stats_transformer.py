@@ -1,8 +1,9 @@
 import numpy as np
 from sklearn.base import BaseEstimator, TransformerMixin
 from joblib import Parallel, delayed
-import librosa, pandas as pd
-from typing import Self, Sequence
+import librosa
+import pandas as pd
+from typing import Self
 from stat_feat_transformer import StatFeatTransformer
 from numpy.typing import ArrayLike
 

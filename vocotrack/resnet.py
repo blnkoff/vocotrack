@@ -47,7 +47,8 @@ class _ResBlock(nn.Module):
         in_channels: int,
         out_channels: int,
         stride: int,
-        conv_block: nn.Sequential
+        conv_block: nn.Sequential,
+        dropout_prob: float = 0.2
     ):
         super().__init__()
         self.conv_block = conv_block
@@ -63,11 +64,15 @@ class _ResBlock(nn.Module):
             )
 
         self.relu = nn.ReLU(inplace=True)
+        self.dropout = nn.Dropout2d(dropout_prob)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         identity = self.identity(x)
         out = self.conv_block(x)
-        return self.relu(identity + out)
+        out = identity + out
+        out = self.relu(out)
+        out = self.dropout(out)
+        return out
 
 
 class _Bottleneck(_ResBlock):
@@ -77,7 +82,8 @@ class _Bottleneck(_ResBlock):
         self,
         in_channels: int,
         bott_channels: int,
-        stride: int = 1
+        stride: int = 1,
+        dropout_prob: float = 0.2
     ):
         out_channels = bott_channels * self.expansion
 
@@ -87,7 +93,7 @@ class _Bottleneck(_ResBlock):
             _ConvBN(bott_channels, out_channels, 1, stride=1, padding=0)
         )
 
-        super().__init__(in_channels, out_channels, stride, conv_block)
+        super().__init__(in_channels, out_channels, stride, conv_block, dropout_prob)
 
 
 class _Basic(_ResBlock):
@@ -96,14 +102,14 @@ class _Basic(_ResBlock):
         in_channels: int,
         out_channels: int,
         stride: int = 1,
+        dropout_prob: float = 0.2
     ):
         conv_block = nn.Sequential(
             _ConvBNRelu(in_channels, out_channels, 3, stride),
             _ConvBN(out_channels, out_channels, 3, stride=1)
         )
 
-        super().__init__(in_channels, out_channels, stride, conv_block)
-
+        super().__init__(in_channels, out_channels, stride, conv_block, dropout_prob)
 
 class _Stage(nn.Sequential):
     def __init__(
@@ -113,15 +119,17 @@ class _Stage(nn.Sequential):
         stride: int,
         blocks: int,
         block_type: BlockType,
+        dropout_prob: float = 0.2
     ):
+        layers: list[nn.Module] = []
         if block_type is BlockType.BASIC:
-            layers = [_Basic(in_channels, num_channels, stride)]
+            layers.append(_Basic(in_channels, num_channels, stride, dropout_prob=dropout_prob))
             out_channels = num_channels
-            def factory(): return _Basic(num_channels, num_channels)
+            def factory(): return _Basic(num_channels, num_channels, dropout_prob=dropout_prob)
         else:
-            layers = [_Bottleneck(in_channels, num_channels, stride)]
+            layers.append(_Bottleneck(in_channels, num_channels, stride, dropout_prob=dropout_prob))
             out_channels = _Bottleneck.expansion * num_channels
-            def factory(): return _Bottleneck(out_channels, num_channels)
+            def factory(): return _Bottleneck(out_channels, num_channels, dropout_prob=dropout_prob)
 
         for _ in range(1, blocks):
             layers.append(factory())
@@ -133,13 +141,15 @@ class _Stage(nn.Sequential):
     def out_channels(self) -> int:
         return self._out_channels
 
-
 class ResNet(nn.Module):
     def __init__(self, config: ResNetCfg):
         super().__init__() 
         config = ResNetCfg.model_validate(config)
+        dropout_prob = config.dropout_prob
         
         self.stem = _ConvBNRelu(**config.stem.model_dump())
+        self.dropout_stem = nn.Dropout2d(dropout_prob)
+        
         self.model = nn.Sequential(
             *(stages := [
                 _Stage(
@@ -147,7 +157,8 @@ class ResNet(nn.Module):
                     stage.num_channels,
                     stage.stride,
                     stage.blocks,
-                    config.block_type
+                    config.block_type,
+                    dropout_prob=dropout_prob
                 )
                 for stage in config.stages
             ])
@@ -171,6 +182,7 @@ class ResNet(nn.Module):
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         if x.dim() == 3:
             x = x.unsqueeze(1)
-            
         x = self.stem(x)
-        return self.model(x)
+        x = self.dropout_stem(x)
+        x = self.model(x)
+        return x

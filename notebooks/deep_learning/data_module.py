@@ -35,9 +35,9 @@ class DataModule(LightningDataModule):
         self._num_workers = num_workers
         self._batch_size = batch_size
         
-        self.train_dataset: DataLoader | None = None
-        self.val_dataset: DataLoader | None = None
-        self.test_dataset: DataLoader | None = None
+        self.train_dataset: Dataset | None = None
+        self.val_dataset: Dataset | None = None
+        self.test_dataset: Dataset | None = None
         
     def setup(self, stage: str | None = None):
         if stage in (None, "fit"):
@@ -62,6 +62,14 @@ class DataModule(LightningDataModule):
     def val_dataloader(self) -> DataLoader:
         return DataLoader(
             self.val_dataset,
+            batch_size=self._batch_size,
+            shuffle=False,
+            num_workers=self._num_workers
+        )
+        
+    def test_dataloader(self):
+        return DataLoader(
+            self.test_dataset,
             batch_size=self._batch_size,
             shuffle=False,
             num_workers=self._num_workers
