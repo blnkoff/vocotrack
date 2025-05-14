@@ -6,6 +6,10 @@ Child speech mispronunciation detection
 
 The RVector model is a CNN architecture designed for speaker/speech recognition tasks, adapted here for mispronunciation detection.
 
+<img src="img/rvector.png" alt="Architecture" style="width:50%;"/>
+
+**Description**:
+
 * **Backbone:** ResNet-34 like structure with convolutional layers to process MFCC spectrograms.
 * **Input:** MFCC (T x 20 x 1), Gender ID, Word ID, and actual sequence length (for handling padding).
 * **Pooling:** Statistical Pooling layer (mean + standard deviation) is applied after the ResNet backbone.
@@ -35,5 +39,8 @@ The model implementation is modular, using PyTorch Lightning for structured trai
     * Best during tuning: AUC PR $\approx$ 0.3186 (validation)
     * After final training: AUC PR $\approx$ 0.3223 (validation)
     * **Test Set Performance:** AUC PR = 0.2418
+  
 
-The RVector model showed the best performance on the validation set, outperforming classical ML approaches. The test set performance indicates the challenging nature of the task and room for further improvement.
+The RVector model showed the best performance on the validation set, outperforming classical ML approaches. The test set performance indicates the challenging nature of the task and room for further improvement. Here is PR-curve:
+
+![arch](img/pr-curve.png)
