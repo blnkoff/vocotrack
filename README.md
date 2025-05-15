@@ -30,14 +30,14 @@ The model implementation is modular, using PyTorch Lightning for structured trai
 
 ## Results
 
-* **Dummy Classifier (Baseline):** AUC PR $\approx$ 0.143 (reflects class imbalance)
-* **Logistic Regression (MFCC stats):** AUC PR $\approx$ 0.280 (validation)
-* **Random Forest (MFCC stats - Best Classical):** AUC PR $\approx$ 0.307 (validation)
-* **XGBoost (MFCC stats):** AUC PR $\approx$ 0.280 (validation)
-* **CatBoost (MFCC stats):** AUC PR $\approx$ 0.286 (validation)
+* **Dummy Classifier (Baseline):** AUC PR = 0.143 (reflects class imbalance)
+* **Logistic Regression (MFCC stats):** AUC PR = 0.280 (validation)
+* **Random Forest (MFCC stats - Best Classical):** AUC PR = 0.307 (validation)
+* **XGBoost (MFCC stats):** AUC PR = 0.280 (validation)
+* **CatBoost (MFCC stats):** AUC PR = 0.286 (validation)
 * **RVector (CNN):**
-    * Best during tuning: AUC PR $\approx$ 0.3186 (validation)
-    * After final training: AUC PR $\approx$ 0.3223 (validation)
+    * Best during tuning: AUC PR = 0.3186 (validation)
+    * After final training: AUC PR = 0.3223 (validation)
     * **Test Set Performance:** AUC PR = 0.2418
   
 

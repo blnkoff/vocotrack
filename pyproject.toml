@@ -1,7 +1,7 @@
 [project]
 name = "vocotrack"
 version = "0.1.0"
-description = "Support children with speech development difficulties"
+description = "Child speech mispronunciation detection"
 authors = [
     {name = "blnkoff",email = "axbelenkov@gmail.com"}
 ]
